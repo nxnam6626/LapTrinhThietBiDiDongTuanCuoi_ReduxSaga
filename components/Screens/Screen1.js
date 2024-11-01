@@ -5,8 +5,8 @@ const Screen1 = ({ navigation }) => {
   const [name, setName] = useState('');
 
   const handleGetStarted = () => {
-    // Điều hướng sang màn hình tiếp theo với tên người dùng
-    navigation.navigate('NextScreen', { userName: name });
+    // Điều hướng sang màn hình Screen2 với tên người dùng
+    navigation.navigate('Screen2', { userName: name });
   };
 
   return (
