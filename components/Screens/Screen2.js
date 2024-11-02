@@ -1,152 +1,134 @@
-import React, { useState } from 'react';
-import { View, Text, TextInput, StyleSheet, FlatList, TouchableOpacity, Image } from 'react-native';
-import { Ionicons, MaterialIcons } from '@expo/vector-icons';
+// screens/TaskListScreen.js
+import React from 'react';
+import { View, Text, FlatList, TouchableOpacity, StyleSheet } from 'react-native';
+import { useSelector, useDispatch } from 'react-redux';
+import { toggleTask } from '../actions';
+import Icon from 'react-native-vector-icons/MaterialIcons';
 
-const Screen2 = ({ navigation }) => {
-  const [tasks, setTasks] = useState([
-    { id: '1', text: 'To check email', completed: true },
-    { id: '2', text: 'UI task web page', completed: true },
-    { id: '3', text: 'Learn JavaScript basic', completed: true },
-    { id: '4', text: 'Learn HTML Advance', completed: true },
-    { id: '5', text: 'Medical App UI', completed: false },
-    { id: '6', text: 'Learn Java', completed: false },
-  ]);
-  const [searchText, setSearchText] = useState('');
+export default function TaskListScreen({ navigation }) {
+  const { userName, tasks } = useSelector(state => state.todo);
+  const dispatch = useDispatch();
 
   const renderTask = ({ item }) => (
     <View style={styles.taskItem}>
-      <View style={styles.taskContent}>
-        <Ionicons
-          name={item.completed ? 'checkbox' : 'square-outline'}
-          size={24}
-          color="green"
-          style={styles.checkboxIcon}
-        />
-        <Text style={styles.taskText}>{item.text}</Text>
-      </View>
-      <View style={styles.actionIcons}>
-        <View style={styles.priorityIndicator} />
-        <TouchableOpacity>
-          <MaterialIcons name="edit" size={24} color="#FF6347" />
-        </TouchableOpacity>
-      </View>
+      <TouchableOpacity 
+        style={styles.checkbox}
+        onPress={() => dispatch(toggleTask(item.id))}
+      >
+        {item.completed && <Icon name="check" size={20} color="#06B6D4" />}
+      </TouchableOpacity>
+      <Text style={[
+        styles.taskText,
+        item.completed && styles.completedTask
+      ]}>
+        {item.title}
+      </Text>
+      <TouchableOpacity
+        onPress={() => navigation.navigate('AddTask', { task: item })}
+      >
+        <Icon name="edit" size={20} color="#666" />
+      </TouchableOpacity>
     </View>
   );
 
   return (
     <View style={styles.container}>
       <View style={styles.header}>
-        <Image
-          style={styles.avatar}
-          source={{ uri: 'https://i.pravatar.cc/300' }}
-        />
-        <View style={styles.headerTextContainer}>
-          <Text style={styles.greeting}>Hi Twinkle</Text>
-          <Text style={styles.subGreeting}>Have a great day ahead</Text>
+        <TouchableOpacity onPress={() => navigation.goBack()}>
+          <Icon name="arrow-back" size={24} color="#000" />
+        </TouchableOpacity>
+        <View style={styles.userInfo}>
+          <Icon name="account-circle" size={40} color="#8B5CF6" />
+          <View style={styles.userText}>
+            <Text style={styles.greeting}>Hi {userName}</Text>
+            <Text style={styles.subtitle}>Have a great day ahead</Text>
+          </View>
         </View>
       </View>
-
-      <TextInput
-        style={styles.searchInput}
-        placeholder="Search"
-        value={searchText}
-        onChangeText={setSearchText}
-      />
 
       <FlatList
         data={tasks}
         renderItem={renderTask}
-        keyExtractor={(item) => item.id}
-        style={styles.taskList}
+        keyExtractor={item => item.id}
+        style={styles.list}
       />
 
-      <TouchableOpacity style={styles.addButton}>
-        <Ionicons name="add" size={32} color="white" />
+      <TouchableOpacity 
+        style={styles.fab}
+        onPress={() => navigation.navigate('AddTask')}
+      >
+        <Icon name="add" size={30} color="#fff" />
       </TouchableOpacity>
     </View>
   );
-};
+}
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#f5f5f5',
-    padding: 16,
+    backgroundColor: '#fff',
   },
   header: {
+    padding: 20,
+    paddingTop: 40,
+    backgroundColor: '#fff',
+    borderBottomWidth: 1,
+    borderBottomColor: '#eee',
+  },
+  userInfo: {
     flexDirection: 'row',
     alignItems: 'center',
-    marginBottom: 16,
+    marginTop: 10,
   },
-  avatar: {
-    width: 50,
-    height: 50,
-    borderRadius: 25,
-    marginRight: 10,
-  },
-  headerTextContainer: {
-    flexDirection: 'column',
+  userText: {
+    marginLeft: 10,
   },
   greeting: {
     fontSize: 18,
     fontWeight: 'bold',
-    color: '#333',
   },
-  subGreeting: {
-    fontSize: 14,
+  subtitle: {
     color: '#666',
   },
-  searchInput: {
-    height: 40,
-    borderColor: '#ccc',
-    borderWidth: 1,
-    borderRadius: 20,
-    paddingHorizontal: 15,
-    marginBottom: 16,
-    backgroundColor: '#fff',
-  },
-  taskList: {
+  list: {
     flex: 1,
+    padding: 20,
   },
   taskItem: {
     flexDirection: 'row',
     alignItems: 'center',
-    justifyContent: 'space-between',
     padding: 15,
-    marginVertical: 5,
-    borderRadius: 10,
-    backgroundColor: '#e0e0e0',
+    borderBottomWidth: 1,
+    borderBottomColor: '#eee',
   },
-  taskContent: {
-    flexDirection: 'row',
+  checkbox: {
+    width: 24,
+    height: 24,
+    borderWidth: 2,
+    borderColor: '#06B6D4',
+    borderRadius: 12,
+    marginRight: 15,
     alignItems: 'center',
-  },
-  checkboxIcon: {
-    marginRight: 10,
+    justifyContent: 'center',
   },
   taskText: {
+    flex: 1,
     fontSize: 16,
-    color: '#333',
   },
-  actionIcons: {
-    flexDirection: 'row',
-    alignItems: 'center',
+  completedTask: {
+    textDecorationLine: 'line-through',
+    color: '#666',
   },
-  priorityIndicator: {
-    width: 20,
-    height: 20,
-    backgroundColor: 'red',
-    borderRadius: 5,
-    marginRight: 10,
-  },
-  addButton: {
+  fab: {
     position: 'absolute',
-    bottom: 20,
     right: 20,
-    backgroundColor: '#00c6d3',
-    borderRadius: 30,
-    padding: 10,
+    bottom: 20,
+    width: 56,
+    height: 56,
+    borderRadius: 28,
+    backgroundColor: '#06B6D4',
+    alignItems: 'center',
+    justifyContent: 'center',
+    elevation: 4,
   },
 });
-
-export default Screen2;
